@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  username     String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+
+  accounts     Account[]
+  categories   Category[]
+  tags         Tag[]
+  transactions Transaction[]
+  recurring    RecurringRule[]
+  budgets      Budget[]
+  billSplits   BillSplit[]
+}
+
+model Account {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  type      String   // CASH, BANK, CREDIT_CARD, ALIPAY, WECHAT, OTHER
+  balance   Float    @default(0)
+  currency  String   @default("CNY")
+  createdAt DateTime @default(now())
+
+  transactions Transaction[]
+}
+
+model Category {
+  id       Int        @id @default(autoincrement())
+  userId   Int?
+  user     User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name     String
+  type     String     // INCOME, EXPENSE
+  icon     String?
+  parentId Int?
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryHierarchy")
+
+  transactions Transaction[]
+  budgets      Budget[]
+}
+
+model Tag {
+  id     Int    @id @default(autoincrement())
+  userId Int
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name   String
+  color  String?
+
+  transactions TransactionTag[]
+}
+
+model Transaction {
+  id              Int             @id @default(autoincrement())
+  userId          Int
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId       Int
+  account         Account         @relation(fields: [accountId], references: [id])
+  categoryId      Int
+  category        Category        @relation(fields: [categoryId], references: [id])
+  type            String          // INCOME, EXPENSE, TRANSFER
+  amount          Float
+  description     String?
+  date            DateTime
+  recurringRuleId Int?
+  recurringRule   RecurringRule?  @relation(fields: [recurringRuleId], references: [id])
+  note            String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  tags            TransactionTag[]
+  billSplit       BillSplit?
+}
+
+model TransactionTag {
+  transactionId Int
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  tagId         Int
+  tag           Tag         @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([transactionId, tagId])
+}
+
+model RecurringRule {
+  id                   Int           @id @default(autoincrement())
+  userId               Int
+  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  frequency            String        // DAILY, WEEKLY, MONTHLY, YEARLY
+  interval             Int           @default(1)
+  nextDate             DateTime
+  endDate              DateTime?
+  transactionTemplate  String        // JSON: { accountId, categoryId, type, amount, description }
+  active               Boolean       @default(true)
+  createdAt            DateTime      @default(now())
+
+  transactions         Transaction[]
+}
+
+model Budget {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [id])
+  amount     Float
+  period     String   // MONTHLY, YEARLY
+  startDate  DateTime
+  endDate    DateTime?
+  createdAt  DateTime @default(now())
+}
+
+model BillSplit {
+  id           Int      @id @default(autoincrement())
+  transactionId Int     @unique
+  transaction  Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  description  String
+  totalAmount  Float
+  participants String   // JSON array: [{name, amount, settled}]
+  createdAt    DateTime @default(now())
+}
