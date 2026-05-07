@@ -2,7 +2,7 @@ services:
   - type: web
     name: bookkeeping-api
     env: node
-    region: singapore
+    region: oregon
     plan: free
     buildCommand: npm install && npm run build
     startCommand: npm start
@@ -17,11 +17,11 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGIN
-        value: https://bookkeeping-frontend.vercel.app
+        value: https://your-vercel-app.vercel.app
 
 databases:
   - name: bookkeeping-db
-    region: singapore
+    region: oregon
     plan: free
     databaseName: bookkeeping
     ipAllowList: []
