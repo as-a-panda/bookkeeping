@@ -1,8 +1,5 @@
 # 记账本
 
-![GitHub](https://img.shields.io/badge/license-MIT-blue)
-![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen)
-
 一个功能完整的个人记账网站，支持收入/支出记录、分类管理、预算管理、定期账单、统计报表等功能。
 
 ## 技术栈
@@ -11,39 +8,59 @@
 |------|------|
 | 前端 | React 18 + TypeScript + Vite + Tailwind CSS |
 | 后端 | Node.js + Express + TypeScript + Prisma |
-| 数据库 | PostgreSQL |
+| 数据库 | SQLite（零配置，开箱即用） |
 | 图表 | Recharts |
 | 认证 | JWT + bcrypt |
 
-## 本地开发
+## 快速开始（本地运行）
+
+### 前置要求
+- Node.js 18+
+- Git
+
+### 步骤
 
 ```bash
-# 后端
+# 1. 克隆项目
+git clone https://github.com/as-a-panda/bookkeeping.git
+cd bookkeeping
+
+# 2. 启动后端（新开一个终端）
 cd backend
 npm install
-cp .env.example .env  # 配置数据库连接
 npm run dev
 
-# 前端
+# 3. 启动前端（新开一个终端）
 cd frontend
 npm install
 npm run dev
+
+# 4. 打开浏览器访问
+http://localhost:5173
 ```
 
-访问 http://localhost:5173
+### 说明
+- 数据库使用 SQLite，无需额外安装数据库
+- 注册账号后即可开始记账
+- 默认已有常用分类（餐饮、交通、工资等）
 
-## 部署
+## 功能
 
-### 方式一：一键部署（推荐）
+- 用户注册/登录
+- 记一笔（收入/支出）
+- 多账户管理（现金、银行卡、微信、支付宝等）
+- 分类管理
+- 预算管理（月度/年度，进度追踪）
+- 定期账单
+- 统计数据（仪表盘、月度趋势、分类占比）
+- CSV 导出
+- 账单分摊
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/as-a-panda/bookkeeping)
+## 项目结构
 
-点击上方按钮，Render 会自动部署后端 + PostgreSQL 数据库。
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/as-a-panda/bookkeeping)
-
-前端部署后需设置环境变量 `VITE_API_URL` 为后端地址。
-
-### 方式二：手动部署
-
-详见下方部署指南。
+```
+bookkeeping/
+├── frontend/          # React 前端
+├── backend/           # Express 后端 + Prisma
+└── README.md
+```
